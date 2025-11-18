@@ -15,10 +15,13 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
       
-      - run: npm install
+      # Install pnpm
+      - run: npm install -g pnpm
       
-      - run: npm run build
+      - run: pnpm install
       
-      - run: npm publish
+      - run: pnpm run build
+      
+      - run: pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,12 +1,32 @@
 {
-  "name": "js",
+  "name": "arkham-oracle-sdk",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "SDK for interacting with the Arkham custom oracle.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./server": {
+      "require": "./dist/server.js",
+      "import": "./dist/server.mjs",
+      "types": "./dist/server.d.ts"
+    },
+    "./client": {
+      "require": "./dist/client.js",
+      "import": "./dist/client.mjs",
+      "types": "./dist/client.d.ts"
+    }
   },
-  "keywords": [],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "keywords": ["arkham", "solana", "oracle", "sdk", "web3"],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
@@ -15,7 +35,7 @@
     "js-sha3": "^0.9.3"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "typescript": "^5.9.3"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
   }
 }
