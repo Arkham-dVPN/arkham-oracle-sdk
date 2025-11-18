@@ -3,9 +3,21 @@ import { sign } from '@noble/ed25519';
 
 // --- Interfaces ---
 
+/**
+ * Configuration options for creating the oracle handler.
+ */
 export interface OracleHandlerOptions {
+  /**
+   * The 64-byte Ed25519 private key used for signing price data.
+   * The first 32 bytes should be the private key seed.
+   */
   oraclePrivateKey: Uint8Array;
-  trustedClientKeys: string[];
+  /**
+   * Optional. An array of strings to use as API keys for authorization.
+   * If this array is omitted or empty, the endpoint will be public.
+   * Tip: You can generate strong keys using `openssl rand -base64 48`
+   */
+  trustedClientKeys?: string[];
 }
 
 export interface SignedPriceData {
@@ -14,39 +26,27 @@ export interface SignedPriceData {
   signature: string;
 }
 
-// --- Private Helper Functions ---
-
-/**
- * Parses a private key from a JSON string representation of a byte array.
- */
-function parseKey(keyString: string): Uint8Array {
-  try {
-    const keyArray = JSON.parse(keyString);
-    if (Array.isArray(keyArray) && keyArray.every(b => typeof b === 'number')) {
-      return new Uint8Array(keyArray);
-    }
-  } catch (e) {
-    console.error("Failed to parse private key string:", e);
-  }
-  throw new Error("Invalid private key format. Expected a JSON array of numbers.");
-}
+// --- Core Logic ---
 
 /**
  * The core logic for fetching, signing, and returning price data.
  * This is framework-agnostic and uses the standard Request and Response objects.
  */
-export async function handlePriceRequest(
+async function handlePriceRequest(
   request: Request,
-  options: { oraclePrivateKey: Uint8Array; trustedClientKeys: string[] }
+  options: OracleHandlerOptions
 ): Promise<Response> {
   const { searchParams } = new URL(request.url);
   const trustedClientKey = searchParams.get('trustedClientKey');
   const token = searchParams.get('token');
 
-  // 1. Security Validation
-  if (!trustedClientKey || !options.trustedClientKeys.includes(trustedClientKey)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+  // 1. Security Validation (Optional)
+  if (options.trustedClientKeys && options.trustedClientKeys.length > 0) {
+    if (!trustedClientKey || !options.trustedClientKeys.includes(trustedClientKey)) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    }
   }
+  // If trustedClientKeys is not provided, the check is skipped, and the endpoint is public.
 
   if (!token) {
     return new Response(JSON.stringify({ error: 'Token parameter is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
@@ -96,30 +96,26 @@ export async function handlePriceRequest(
 }
 
 /**
- * Creates a Next.js App Router compatible handler.
- * @param options - Configuration including private key and trusted client keys.
- * @returns A GET handler for use in a Next.js route file.
+ * Creates a request handler compatible with modern serverless environments (Next.js, Cloudflare, etc.).
+ * @param options The configuration for the oracle handler.
  *
  * @example
  * // In your app/api/price/route.ts
- * import { createNextJsAppRouterHandler } from 'arkham-oracle-sdk/server';
+ * import { createOracleHandler } from 'arkham-oracle-sdk/server';
  *
- * export const GET = createNextJsAppRouterHandler({
- *   oraclePrivateKey: process.env.ORACLE_PRIVATE_KEY,
- *   trustedClientKeys: process.env.TRUSTED_CLIENT_KEYS,
+ * // The private key can be parsed from a string in your .env file
+ * const privateKey = new Uint8Array(JSON.parse(process.env.ORACLE_PRIVATE_KEY!));
+ * const trustedKeys = process.env.TRUSTED_CLIENT_KEYS?.split(',');
+ *
+ * export const GET = createOracleHandler({
+ *   oraclePrivateKey: privateKey,
+ *   trustedClientKeys: trustedKeys, // Omit this line to make the endpoint public
  * });
  */
-export function createNextJsAppRouterHandler(
-    env: { oraclePrivateKey?: string; trustedClientKeys?: string }
-) {
-    if (!env.oraclePrivateKey || !env.trustedClientKeys) {
-        throw new Error("Missing ORACLE_PRIVATE_KEY or TRUSTED_CLIENT_KEYS environment variables.");
-    }
+export function createOracleHandler(options: OracleHandlerOptions) {
+  if (!options.oraclePrivateKey || options.oraclePrivateKey.length !== 64) {
+    throw new Error("A 64-byte 'oraclePrivateKey' must be provided in the handler options.");
+  }
 
-    const options = {
-        oraclePrivateKey: parseKey(env.oraclePrivateKey),
-        trustedClientKeys: env.trustedClientKeys.split(','),
-    };
-
-    return (request: Request) => handlePriceRequest(request, options);
+  return (request: Request) => handlePriceRequest(request, options);
 }
