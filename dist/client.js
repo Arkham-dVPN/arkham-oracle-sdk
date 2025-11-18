@@ -18,14 +18,16 @@ export class OracleClient {
     async fetchSignedPrice(token, trustedKey) {
         const params = new URLSearchParams({
             token: token,
-            trustedClientKey: trustedKey,
         });
+        if (trustedKey) {
+            params.append("trustedClientKey", trustedKey);
+        }
         const response = await fetch(`${this.baseUrl}?${params.toString()}`);
         if (!response.ok) {
-            const errorBody = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+            const errorBody = (await response.json().catch(() => ({ error: 'Failed to parse error response' })));
             throw new Error(`Failed to fetch signed price: ${response.status} ${response.statusText} - ${errorBody.error || 'Unknown error'}`);
         }
-        const data = await response.json();
+        const data = (await response.json());
         return data;
     }
 }

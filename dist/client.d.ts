@@ -12,5 +12,5 @@ export declare class OracleClient {
      * @param trustedKey - The trusted client key for authentication.
      * @returns A promise that resolves to the signed price data.
      */
-    fetchSignedPrice(token: string, trustedKey: string): Promise<SignedPriceData>;
+    fetchSignedPrice(token: string, trustedKey?: string): Promise<SignedPriceData>;
 }

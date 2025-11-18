@@ -1,5 +1,9 @@
 import { SignedPriceData } from './server';
 
+interface ErrorResponse {
+  error: string;
+}
+
 export class OracleClient {
   private readonly baseUrl: string;
 
@@ -20,20 +24,22 @@ export class OracleClient {
    * @param trustedKey - The trusted client key for authentication.
    * @returns A promise that resolves to the signed price data.
    */
-  public async fetchSignedPrice(token: string, trustedKey: string): Promise<SignedPriceData> {
+  public async fetchSignedPrice(token: string, trustedKey?: string): Promise<SignedPriceData> {
     const params = new URLSearchParams({
       token: token,
-      trustedClientKey: trustedKey,
     });
+    if (trustedKey) {
+      params.append("trustedClientKey", trustedKey);
+    }
 
     const response = await fetch(`${this.baseUrl}?${params.toString()}`);
 
     if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+      const errorBody = (await response.json().catch(() => ({ error: 'Failed to parse error response' }))) as ErrorResponse;
       throw new Error(`Failed to fetch signed price: ${response.status} ${response.statusText} - ${errorBody.error || 'Unknown error'}`);
     }
 
-    const data: SignedPriceData = await response.json();
+    const data: SignedPriceData = (await response.json()) as SignedPriceData;
     return data;
   }
 }

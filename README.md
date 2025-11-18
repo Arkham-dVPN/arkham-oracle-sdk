@@ -28,9 +28,10 @@ const trustedKeys = process.env.TRUSTED_CLIENT_KEYS?.split(',');
 export const GET = createOracleHandler({
   oraclePrivateKey: privateKey,
   trustedClientKeys: trustedKeys, // Omit this property to make the endpoint public
+  // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
 });
 ```
-**Note:** The `trustedClientKeys` option is optional. If you omit it, the API endpoint will not require an API key.
+**Note:** The `trustedClientKeys` option is optional. If you omit it, the API endpoint will not require an API key. The `dataSourceUrl` is also optional; if omitted, CoinGecko will be used by default.
 
 ## For Clients: Fetching Signed Prices
 

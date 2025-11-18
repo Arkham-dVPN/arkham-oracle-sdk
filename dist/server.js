@@ -20,15 +20,22 @@ async function handlePriceRequest(request, options) {
         return new Response(JSON.stringify({ error: 'Token parameter is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
     try {
-        // 2. Fetch Price from CoinGecko
-        const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`);
-        if (!response.ok) {
-            throw new Error(`CoinGecko API failed with status: ${response.status}`);
+        // 2. Fetch Price from Data Source (CoinGecko by default)
+        let priceResponse;
+        if (options.dataSourceUrl) {
+            // Assuming the custom data source uses similar query parameters and response structure
+            priceResponse = await fetch(`${options.dataSourceUrl}?ids=${token}&vs_currencies=usd`);
         }
-        const data = await response.json();
+        else {
+            priceResponse = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`);
+        }
+        if (!priceResponse.ok) {
+            throw new Error(`Data source API failed with status: ${priceResponse.status}`);
+        }
+        const data = (await priceResponse.json());
         const priceFloat = data[token]?.usd;
         if (typeof priceFloat !== 'number') {
-            throw new Error(`Price for token '${token}' not found in CoinGecko response`);
+            throw new Error(`Price for token '${token}' not found in data source response`);
         }
         // 3. Prepare Data for Signing
         const priceU64 = BigInt(Math.round(priceFloat * 1000000));
@@ -68,7 +75,8 @@ async function handlePriceRequest(request, options) {
  *
  * export const GET = createOracleHandler({
  *   oraclePrivateKey: privateKey,
- *   trustedClientKeys: trustedKeys, // Omit this line to make the endpoint public
+ *   trustedClientKeys: trustedKeys, // Omit this property to make the endpoint public
+ *   // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
  * });
  */
 export function createOracleHandler(options) {
