@@ -124,7 +124,7 @@ main();
 This SDK is ideal for scenarios where:
 
 *   **Decentralized Finance (DeFi):** Providing tamper-proof price feeds for lending protocols, stablecoins, or derivatives on Solana and other blockchains.
-*   **Decentralized VPNs (dVPNs):** As implememted in the Arkham Protocol, for securely valuing staked assets or bandwidth payments.
+*   **Decentralized VPNs (dVPNs):** As implememted in the (Arkham dVPN Protocol)[https://github.com/Arkham-dVPN], for securely valuing staked assets or bandwidth payments.
 *   **Gaming & NFTs:** Integrating real-world asset prices or dynamic game parameters into blockchain-based games or NFT marketplaces.
 *   **Supply Chain & Logistics:** Verifying real-time commodity prices or sensor data on-chain.
 *   **Any Smart Contract Requiring External Data:** When a smart contract needs to react to off-chain information, this oracle provides a cryptographically secure bridge.
