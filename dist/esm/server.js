@@ -1,5 +1,9 @@
 import { keccak256 } from 'js-sha3';
-import { sign } from '@noble/ed25519';
+import { sign, utils } from '@noble/ed25519';
+import { sha512 } from '@noble/hashes/sha512';
+// Prime the ed25519 library with the sha512 implementation it needs.
+// This must be done once, before any other noble-ed25519 functions are called.
+utils.sha512 = sha512;
 // --- Core Logic ---
 /**
  * The core logic for fetching, signing, and returning price data.
@@ -75,7 +79,7 @@ async function handlePriceRequest(request, options) {
  *
  * export const GET = createOracleHandler({
  *   oraclePrivateKey: privateKey,
- *   trustedClientKeys: trustedKeys, // Omit this property to make the endpoint public
+ *   trustedClientKeys: trustedKeys, // Omit this line to make the endpoint public
  *   // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
  * });
  */

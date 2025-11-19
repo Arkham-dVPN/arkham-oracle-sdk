@@ -40,7 +40,7 @@ export interface SignedPriceData {
  *
  * export const GET = createOracleHandler({
  *   oraclePrivateKey: privateKey,
- *   trustedClientKeys: trustedKeys, // Omit this property to make the endpoint public
+ *   trustedClientKeys: trustedKeys, // Omit this line to make the endpoint public
  *   // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
  * });
  */
