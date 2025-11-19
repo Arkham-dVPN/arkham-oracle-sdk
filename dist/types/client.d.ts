@@ -1,4 +1,4 @@
-import { SignedPriceData } from './server';
+import { SignedPriceData } from './server.js';
 export declare class OracleClient {
     private readonly baseUrl;
     /**
@@ -14,3 +14,4 @@ export declare class OracleClient {
      */
     fetchSignedPrice(token: string, trustedKey?: string): Promise<SignedPriceData>;
 }
+//# sourceMappingURL=client.d.ts.map

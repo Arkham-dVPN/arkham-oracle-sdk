@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OracleClient = void 0;
-class OracleClient {
+export class OracleClient {
     /**
      * Creates a new OracleClient.
      * @param baseUrl - The base URL of the oracle API endpoint (e.g., "https://arkham-dvpn.vercel.app/api/price").
@@ -34,4 +31,4 @@ class OracleClient {
         return data;
     }
 }
-exports.OracleClient = OracleClient;
+//# sourceMappingURL=client.js.map

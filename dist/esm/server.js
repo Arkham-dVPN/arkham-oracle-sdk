@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOracleHandler = createOracleHandler;
-const js_sha3_1 = require("js-sha3");
-const ed25519_1 = require("@noble/ed25519");
+import { keccak256 } from 'js-sha3';
+import { sign } from '@noble/ed25519';
 // --- Core Logic ---
 /**
  * The core logic for fetching, signing, and returning price data.
@@ -46,10 +43,10 @@ async function handlePriceRequest(request, options) {
         const messageBuffer = Buffer.alloc(16);
         messageBuffer.writeBigUInt64LE(priceU64, 0);
         messageBuffer.writeBigInt64LE(timestampI64, 8);
-        const messageHash = Buffer.from(js_sha3_1.keccak256.digest(messageBuffer));
+        const messageHash = Buffer.from(keccak256.digest(messageBuffer));
         // 4. Sign the Message Hash
         const privateKeySeed = options.oraclePrivateKey.slice(0, 32);
-        const signature = await (0, ed25519_1.sign)(messageHash, privateKeySeed);
+        const signature = await sign(messageHash, privateKeySeed);
         const responsePayload = {
             price: priceU64.toString(),
             timestamp: timestampI64.toString(),
@@ -82,9 +79,10 @@ async function handlePriceRequest(request, options) {
  *   // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
  * });
  */
-function createOracleHandler(options) {
+export function createOracleHandler(options) {
     if (!options.oraclePrivateKey || options.oraclePrivateKey.length !== 64) {
         throw new Error("A 64-byte 'oraclePrivateKey' must be provided in the handler options.");
     }
     return (request) => handlePriceRequest(request, options);
 }
+//# sourceMappingURL=server.js.map

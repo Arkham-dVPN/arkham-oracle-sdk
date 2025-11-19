@@ -45,3 +45,4 @@ export interface SignedPriceData {
  * });
  */
 export declare function createOracleHandler(options: OracleHandlerOptions): (request: Request) => Promise<Response>;
+//# sourceMappingURL=server.d.ts.map
