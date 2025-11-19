@@ -1,10 +1,5 @@
 import { keccak256 } from 'js-sha3';
-import { sign, utils } from '@noble/ed25519';
-import { sha512 } from '@noble/hashes/sha512';
-
-// Prime the ed25519 library with the sha512 implementation it needs.
-// This must be done once, before any other noble-ed25519 functions are called.
-utils.sha512 = sha512;
+import { ed25519 } from '@noble/curves/ed25519';
 
 // --- Interfaces ---
 
@@ -64,7 +59,6 @@ async function handlePriceRequest(
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
     }
   }
-  // If trustedClientKeys is not provided, the check is skipped, and the endpoint is public.
 
   if (!token) {
     return new Response(JSON.stringify({ error: 'Token parameter is required' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
@@ -74,7 +68,6 @@ async function handlePriceRequest(
     // 2. Fetch Price from Data Source (CoinGecko by default)
     let priceResponse: globalThis.Response;
     if (options.dataSourceUrl) {
-      // Assuming the custom data source uses similar query parameters and response structure
       priceResponse = await fetch(`${options.dataSourceUrl}?ids=${token}&vs_currencies=usd`);
     } else {
       priceResponse = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`);
@@ -100,9 +93,9 @@ async function handlePriceRequest(
 
     const messageHash = Buffer.from(keccak256.digest(messageBuffer));
 
-    // 4. Sign the Message Hash
+    // 4. Sign the message hash
     const privateKeySeed = options.oraclePrivateKey.slice(0, 32);
-    const signature = await sign(messageHash, privateKeySeed);
+    const signature = ed25519.sign(messageHash, privateKeySeed);
 
     const responsePayload: SignedPriceData = {
       price: priceU64.toString(),
@@ -123,20 +116,6 @@ async function handlePriceRequest(
 /**
  * Creates a request handler compatible with modern serverless environments (Next.js, Cloudflare, etc.).
  * @param options The configuration for the oracle handler.
- *
- * @example
- * // In your app/api/price/route.ts
- * import { createOracleHandler } from 'arkham-oracle-sdk/server';
- *
- * // The private key can be parsed from a string in your .env file
- * const privateKey = new Uint8Array(JSON.parse(process.env.ORACLE_PRIVATE_KEY!));
- * const trustedKeys = process.env.TRUSTED_CLIENT_KEYS?.split(',');
- *
- * export const GET = createOracleHandler({
- *   oraclePrivateKey: privateKey,
- *   trustedClientKeys: trustedKeys, // Omit this line to make the endpoint public
- *   // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
- * });
  */
 export function createOracleHandler(options: OracleHandlerOptions) {
   if (!options.oraclePrivateKey || options.oraclePrivateKey.length !== 64) {

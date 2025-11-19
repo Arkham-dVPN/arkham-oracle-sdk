@@ -29,20 +29,6 @@ export interface SignedPriceData {
 /**
  * Creates a request handler compatible with modern serverless environments (Next.js, Cloudflare, etc.).
  * @param options The configuration for the oracle handler.
- *
- * @example
- * // In your app/api/price/route.ts
- * import { createOracleHandler } from 'arkham-oracle-sdk/server';
- *
- * // The private key can be parsed from a string in your .env file
- * const privateKey = new Uint8Array(JSON.parse(process.env.ORACLE_PRIVATE_KEY!));
- * const trustedKeys = process.env.TRUSTED_CLIENT_KEYS?.split(',');
- *
- * export const GET = createOracleHandler({
- *   oraclePrivateKey: privateKey,
- *   trustedClientKeys: trustedKeys, // Omit this line to make the endpoint public
- *   // dataSourceUrl: "https://my-custom-price-api.com/prices" // Optional: use a custom data source
- * });
  */
 export declare function createOracleHandler(options: OracleHandlerOptions): (request: Request) => Promise<Response>;
 //# sourceMappingURL=server.d.ts.map
