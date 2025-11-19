@@ -1,4 +1,4 @@
-import { SignedPriceData } from './server';
+import { SignedPriceData } from './server.js';
 
 interface ErrorResponse {
   error: string;
