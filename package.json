@@ -1,41 +1,65 @@
 {
   "name": "arkham-oracle-sdk",
   "version": "1.0.0",
-  "description": "SDK for interacting with the Arkham custom oracle.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": ["dist", "README.md"],
+  "description": "A verifiable off-chain oracle SDK for securely signing and delivering real-world data to smart contracts.",
+  "author": "David Nzube (Skipp)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-repo/arkham-oracle-sdk.git"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+    "./client": {
+      "import": {
+        "types": "./dist/types/client.d.ts",
+        "default": "./dist/esm/client.js"
+      },
+      "require": {
+        "types": "./dist/types/client.d.ts",
+        "default": "./dist/cjs/client.js"
+      }
     },
     "./server": {
-      "require": "./dist/server.js",
-      "import": "./dist/server.mjs",
-      "types": "./dist/server.d.ts"
-    },
-    "./client": {
-      "require": "./dist/client.js",
-      "import": "./dist/client.mjs",
-      "types": "./dist/client.d.ts"
+      "import": {
+        "types": "./dist/types/server.d.ts",
+        "default": "./dist/esm/server.js"
+      },
+      "require": {
+        "types": "./dist/types/server.d.ts",
+        "default": "./dist/cjs/server.js"
+      }
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run postbuild && npm run package",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "postbuild": "node add-js-extensions.js",
+    "clean": "shx mkdir -p dist && shx rm -rf dist",
+    "package": "shx echo '{ \"type\": \"commonjs\" }' > dist/cjs/package.json"
   },
-  "keywords": ["arkham", "solana", "oracle", "sdk", "web3"],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@noble/ed25519": "^3.0.0",
+    "@noble/ed25519": "^2.1.0",
     "js-sha3": "^0.9.3"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^20.14.11",
+    "shx": "^0.4.0",
+    "typescript": "^5.5.3"
   }
 }
