@@ -1,6 +1,6 @@
 {
   "name": "arkham-oracle-sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A verifiable off-chain oracle SDK for securely signing and delivering real-world data to smart contracts.",
   "author": "David Nzube (Skipp)",
   "repository": {
